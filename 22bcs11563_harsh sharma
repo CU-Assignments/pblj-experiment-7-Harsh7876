@@ -1,0 +1,137 @@
+ Build a program to perform CRUD operations (Create, Read, Update, Delete) on a database table Product with columns:
+ProductID, ProductName, Price, and Quantity.
+The program should include:
+Menu-driven options for each operation.
+Transaction handling to ensure data integrity.
+import java.sql.*;
+import java.util.*;
+
+public class ProductCRUD {
+    static final String DB_URL = "jdbc:mysql://localhost:3306/yourdb";
+    static final String USER = "root";
+    static final String PASS = "password";
+
+    public static void main(String[] args) throws Exception {
+        Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        conn.setAutoCommit(false);
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("\n1. Create Product\n2. Read Products\n3. Update Product\n4. Delete Product\n5. Exit");
+            int choice = sc.nextInt();
+            sc.nextLine();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Product Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Enter Price: ");
+                    double price = sc.nextDouble();
+                    System.out.print("Enter Quantity: ");
+                    int qty = sc.nextInt();
+                    String insertSQL = "INSERT INTO Product (ProductName, Price, Quantity) VALUES (?, ?, ?)";
+                    try (PreparedStatement ps = conn.prepareStatement(insertSQL)) {
+                        ps.setString(1, name);
+                        ps.setDouble(2, price);
+                        ps.setInt(3, qty);
+                        ps.executeUpdate();
+                        conn.commit();
+                        System.out.println("Product created.");
+                    } catch (Exception e) {
+                        conn.rollback();
+                    }
+                    break;
+                case 2:
+                    String selectSQL = "SELECT * FROM Product";
+                    try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(selectSQL)) {
+                        while (rs.next()) {
+                            System.out.println(rs.getInt("ProductID") + " " + rs.getString("ProductName") + " " + rs.getDouble("Price") + " " + rs.getInt("Quantity"));
+                        }
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter Product ID to update: ");
+                    int pid = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("New Product Name: ");
+                    String newName = sc.nextLine();
+                    System.out.print("New Price: ");
+                    double newPrice = sc.nextDouble();
+                    System.out.print("New Quantity: ");
+                    int newQty = sc.nextInt();
+                    String updateSQL = "UPDATE Product SET ProductName=?, Price=?, Quantity=? WHERE ProductID=?";
+                    try (PreparedStatement ps = conn.prepareStatement(updateSQL)) {
+                        ps.setString(1, newName);
+                        ps.setDouble(2, newPrice);
+                        ps.setInt(3, newQty);
+                        ps.setInt(4, pid);
+                        ps.executeUpdate();
+                        conn.commit();
+                        System.out.println("Product updated.");
+                    } catch (Exception e) {
+                        conn.rollback();
+                    }
+                    break;
+                case 4:
+                    System.out.print("Enter Product ID to delete: ");
+                    int delID = sc.nextInt();
+                    String deleteSQL = "DELETE FROM Product WHERE ProductID=?";
+                    try (PreparedStatement ps = conn.prepareStatement(deleteSQL)) {
+                        ps.setInt(1, delID);
+                        ps.executeUpdate();
+                        conn.commit();
+                        System.out.println("Product deleted.");
+                    } catch (Exception e) {
+                        conn.rollback();
+                    }
+                    break;
+                case 5:
+                    conn.close();
+                    return;
+            }
+        }
+    }
+}
+OUTPUT
+1. Create Product
+2. Read Products
+3. Update Product
+4. Delete Product
+5. Exit
+1
+Enter Product Name: Laptop
+Enter Price: 75000
+Enter Quantity: 5
+Product created.
+
+2. Develop a Java application using JDBC and MVC architecture to manage student data. The application should: Use a Student class as the model with fields like StudentID, Name, Department, and Marks. Include a database table to store student data. 
+Allow the user to perform CRUD operations through a simple menu-driven view. Implement database operations in a separate controller class.
+public class Student {
+    private int studentID;
+    private String name;
+    private String department;
+    private double marks;
+
+    public Student(int studentID, String name, String department, double marks) {
+        this.studentID = studentID;
+        this.name = name;
+        this.department = department;
+        this.marks = marks;
+    }
+
+    public int getStudentID() { return studentID; }
+    public String getName() { return name; }
+    public String getDepartment() { return department; }
+    public double getMarks() { return marks; }
+}
+OUTPUT
+1. Add Student
+2. View Students
+3. Update Student
+4. Delete Student
+5. Exit
+1
+Enter ID: 101
+Enter Name: Harsh
+Enter Department: CSE
+Enter Marks: 85.5
+Student added.
+
